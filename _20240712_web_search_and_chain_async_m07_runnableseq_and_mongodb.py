@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 """
-Created on Mon May 13 22:14:02 2024
-
 @author: yulialitvinova
 
 """

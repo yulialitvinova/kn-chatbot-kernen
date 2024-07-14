@@ -14,7 +14,6 @@ langchain
 langchain_community
 langchain_core
 langchain_openai
-google
 google_api_core
 google_auth
 google_auth_oauthlib

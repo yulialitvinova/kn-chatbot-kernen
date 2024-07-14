@@ -53,7 +53,8 @@ from urllib.parse import quote_plus
 from langchain_mongodb import MongoDBAtlasVectorSearch
 
 #from langchain_community.utilities import GoogleSearchAPIWrapper
-from langchain_google_community import GoogleSearchAPIWrapper
+##############from langchain_google_community import GoogleSearchAPIWrapper
+from search import GoogleSearchAPIWrapper
 # from langchain_community.tools import DuckDuckGoSearchRun
 # from langchain_community.utilities import SearchApiAPIWrapper
 # from langchain_community.utilities import SerpAPIWrapper

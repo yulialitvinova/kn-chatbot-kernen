@@ -1,0 +1,59 @@
+###
+llm rag search an answer on a specific domain name
+how to use rest api in python for RAG
+use apify and save data from a webpage
+LLM RAG ask wepbages crawl a webdomain
+
+###
+embeddings OpenAI:
+https://docs.llamaindex.ai/en/stable/examples/embeddings/OpenAI/
+
+###
+LangChain examples:
+https://langchain-examples.streamlit.app/
+
+tools using LLM agents:
+https://github.com/openai/openai-cookbook/blob/main/examples/How_to_build_a_tool-using_agent_with_Langchain.ipynb
+
+tool-calling:
+https://python.langchain.com/v0.1/docs/modules/model_io/chat/function_calling/
+
+? manage prompt size:
+https://python.langchain.com/v0.1/docs/expression_language/cookbook/prompt_size/
+
+max number of iterations:
+https://python.langchain.com/v0.1/docs/modules/agents/how_to/max_iterations/
+
+memory:
+https://python.langchain.com/v0.1/docs/expression_language/how_to/message_history/
+
+###
+llama2:
+https://llama2.streamlit.app/
+
+llama2 chatbot:
+https://blog.streamlit.io/how-to-build-a-llama-2-chatbot/
+
+###
+mind map generator:
+https://levelup.gitconnected.com/ai-generated-mind-maps-with-the-chatgpt-api-in-python-and-streamlit-bad9cd63f402
+
+##
+own documents:
+https://knowledgegpt.streamlit.app/
+
+custom data sources:
+https://blog.streamlit.io/build-a-chatbot-with-custom-data-sources-powered-by-llamaindex/
+
+ChromaDBconnection:
+https://github.com/Dev317/streamlit_chromadb_connection
+
+WikipediaAPI:
+https://pypi.org/project/Wikipedia-API/
+
+##
+Gesetze:
+www.justiz.de/onlinedienste/bundesundlandesrecht/index.php
+www.bundesregierung.de/breg-de/bundesregierung/bundesministerien*
+www.bgbl.de/xaver/bgbl/start.xav
+www.recht.bund.de/de/home/home_node.html

@@ -1,0 +1,9 @@
+data_level0.bin
+99_chroma_db_kernen/e6f9670a-66f9-482d-bd48-dd25aea40856/data_level0.bin
+99_chroma_db_kernen_urls/a215c728-213a-41d5-b807-6f7cf4cbda0f/data_level0.bin
+
+chroma.sqlite3
+99_chroma_db_kernen/chroma.sqlite3
+99_chroma_db_kernen_urls/chroma.sqlite3
+
+secrets.toml

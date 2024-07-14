@@ -24,7 +24,5 @@ wikipedia_api
 selenium
 webdriver-manager
 pymongo
-chromadb
 pypdf
 pypdf2
-pysqlite3

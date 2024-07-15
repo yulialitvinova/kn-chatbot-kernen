@@ -248,7 +248,7 @@ QA_CHAIN_PROMPT_spec_search = PromptTemplate(
 
 #vectorstore_urls_sugg.add_documents(documents)
 web_retriever_for_tool_urls = vectorstore_urls_sugg.as_retriever(
-    search_kwargs={"k": 4}) # search_type="mmr"
+    search_kwargs={"k": 2}) # search_type="mmr"
 ##### https://python.langchain.com/v0.2/docs/how_to/vectorstore_retriever/
 
 template_query_urls_sugg="""<<SYS>> \n You are an assistant to citizens (users) who are in difficult situations. \
@@ -366,7 +366,7 @@ class ServiceBWurlsSearchTool(BaseTool):
         # #documents = text_splitter_urls_sugg.split_documents(documents)
         # documents = text_splitter.split_documents(documents)
         # vectorstore_urls_sugg.add_documents(documents)
-        retriever = vectorstore_urls_sugg.as_retriever(search_kwargs={"k": 4})
+        retriever = vectorstore_urls_sugg.as_retriever(search_kwargs={"k": 2})
         # https://www.mongodb.com/docs/atlas/atlas-vector-search/ai-integrations/langchain/#create-the-atlas-vector-search-index
         returned_documents = retriever.invoke(question)
         qa_chain = QA_CHAIN_PROMPT_urls_sugg | llm
@@ -414,7 +414,7 @@ tools = [
     Tool(
         name="search_urls_on_service_bw",
         func=service_bw_search_tool.run,
-        description="Very helpful tool if the citizen (user) specifically mentions he or she needs link to an application form or information specific for his or her community, e.g., Kernen. Tool to use if the tool search_specific_webpages has replied with Es tut mir leid, ich habe nicht genügend Informationen.",
+        description="Very helpful tool if the citizen (user) specifically asks how to apply for a benefit or a service, or mentions he or she needs link to an application form or information specific for his or her community, e.g., Kernen. Tool to use if the tool 'search_specific_webpages' has replied with 'Es tut mir leid, ich habe nicht genügend Informationen'.",
     ),
     Tool(
         name="simple_search_googleapiwrapper",

@@ -132,7 +132,7 @@ msgs = StreamlitChatMessageHistory() #(key="langchain_messages")
 memory = ConversationBufferMemory(
     chat_memory=msgs, 
     return_messages=True, 
-    memory_key="history", 
+    memory_key="chat_history", 
     output_key="output",
     #input_key="input",
     #expected_arbitrary_type=BaseChatMessageHistory,
@@ -199,8 +199,8 @@ collection_chat_history = database["99_kernen_chat_history"]
 chat_history_mongodb = MongoDBChatMessageHistory(
     session_id="20240715_001",
     connection_string=mongodb_atlas_cluster_uri,
-    database_name=database,
-    collection_name=collection_chat_history,
+    database_name="99_kernen", #database,
+    collection_name="kernen_chat_history", #collection_chat_history,
 )
 
 # ###FAISS, alternative to Chroma
@@ -501,7 +501,7 @@ agent.agent.llm_chain.prompt.template = """
     If possible, provide your response to the user in bullet points.
     Be as precise as possible. Do not provide generic answers. Do not provide answers like "Wenden Sie sich an das zuständige Amt oder Behörde", without naming the officials. If you do not have a more specific answer, add the following: "Für weitere Informationen, besuchen Sie bitte: https://www.service-bw.de/zufi/lebenslagen "
 
-    Previous conversation history: {history}
+    Previous conversation history: {chat_history}
     
     New input: {input}
     

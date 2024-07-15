@@ -195,13 +195,13 @@ vectorstore_urls_sugg = MongoDBAtlasVectorSearch(
     index_name=vector_search_index_url
     )
 
-collection_chat_history = database["99_kernen_chat_history"]
-chat_history_mongodb = MongoDBChatMessageHistory(
-    session_id="20240715_001",
-    connection_string=mongodb_atlas_cluster_uri,
-    database_name="99_kernen", #database,
-    collection_name="99_kernen_chat_history", #collection_chat_history,
-)
+# collection_chat_history = database["99_kernen_chat_history"]
+# chat_history_mongodb = MongoDBChatMessageHistory(
+#     session_id="20240715_001",
+#     connection_string=mongodb_atlas_cluster_uri,
+#     database_name="99_kernen", #database,
+#     collection_name="99_kernen_chat_history", #collection_chat_history,
+# )
 
 # ###FAISS, alternative to Chroma
 # index = faiss.IndexFlatL2(embeddings_size)

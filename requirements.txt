@@ -25,3 +25,4 @@ webdriver-manager
 pymongo
 pypdf
 pypdf2
+langchain_mongodb

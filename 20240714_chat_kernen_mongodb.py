@@ -50,8 +50,8 @@ import pymongo
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 from urllib.parse import quote_plus
-##############from langchain_mongodb import MongoDBAtlasVectorSearch
-from langchain_mongodb_vectorstores import MongoDBAtlasVectorSearch
+from langchain_mongodb import MongoDBAtlasVectorSearch
+############from langchain_mongodb_vectorstores import MongoDBAtlasVectorSearch
 
 #from langchain_community.utilities import GoogleSearchAPIWrapper
 ##############from langchain_google_community import GoogleSearchAPIWrapper

@@ -20,7 +20,7 @@ from langchain_community.llms import LlamaCpp
 
 #from langchain_community.utilities import GoogleSearchAPIWrapper
 ################from langchain_google_community import GoogleSearchAPIWrapper
-from langchain_google_community_search import GoogleSearchAPIWrapper
+from search import GoogleSearchAPIWrapper
 
 from langchain_core.callbacks import (
     AsyncCallbackManagerForRetrieverRun,

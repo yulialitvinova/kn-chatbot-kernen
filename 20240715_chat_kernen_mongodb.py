@@ -50,6 +50,7 @@ from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 from urllib.parse import quote_plus
 from langchain_mongodb import MongoDBAtlasVectorSearch
+from langchain_mongodb.chat_message_histories import MongoDBChatMessageHistory
 ############from vectorstores import MongoDBAtlasVectorSearch
 
 #from langchain_community.utilities import GoogleSearchAPIWrapper
@@ -185,8 +186,7 @@ vectorstore = MongoDBAtlasVectorSearch( #).from_documents(
 #     embedding_function=embeddings_model,
 #     persist_directory="./99_chroma_test_urls"
 #     )
-database_url = client["99_kernen"]
-collection_url = database_url["99_kernen_urls"]
+collection_url = database["99_kernen_urls"]
 vector_search_index_url = "vector_index"
 
 vectorstore_urls_sugg = MongoDBAtlasVectorSearch(
@@ -194,6 +194,14 @@ vectorstore_urls_sugg = MongoDBAtlasVectorSearch(
     collection=collection_url,
     index_name=vector_search_index_url
     )
+
+collection_chat_history = database["99_kernen_chat_history"]
+chat_history_mongodb = MongoDBChatMessageHistory(
+    session_id="20240715_001",
+    connection_string=mongodb_atlas_cluster_uri,
+    database_name=database,
+    collection_name=collection_chat_history,
+)
 
 # ###FAISS, alternative to Chroma
 # index = faiss.IndexFlatL2(embeddings_size)

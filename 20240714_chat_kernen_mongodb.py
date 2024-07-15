@@ -30,7 +30,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 #from langchain.chains import RetrievalQAWithSourcesChain
-from langchain.chains import LLMMathChain
+# from langchain.chains import LLMMathChain
+#### numexpr
 # from langchain.chains import ConversationChain
 # from langchain.chains import LLMChain, LLMMathChain
 #from langchain.chains import SimpleSequentialChain, RetrievalQA, ConversationalRetrievalChain
@@ -391,7 +392,7 @@ params = {
 
 # search_ddg = DuckDuckGoSearchRun() #(name="Search")
 
-llm_math = LLMMathChain(llm=llm)
+# llm_math = LLMMathChain(llm=llm)
 
 api_wrapper = WikipediaAPIWrapper(top_k_results=1, 
                                   doc_content_chars_max=300
@@ -436,11 +437,11 @@ tools = [
         description="Search for the term in Wikipedia if the search on the official webpages or search for the present-day information in the Internet haven't provided relevant information.",
         #return_direct=True,        
         ), 
-    Tool(
-        name='calculator',  
-        func=llm_math.run,
-        description='Useful for when you need to answer questions that require calculations like adding, subtraction, multiplying.',
-        ),
+    # Tool(
+    #     name='calculator',  
+    #     func=llm_math.run,
+    #     description='Useful for when you need to answer questions that require calculations like adding, subtraction, multiplying.',
+    #     ),
     ]
 
 #audio_tool = load_tools(["eleven_labs_text2speech"])
@@ -471,7 +472,7 @@ agent.agent.llm_chain.prompt.template = """
     ```
     If Yes, i.e., if you need to use a tool:    
     ```
-    Action: The action to take is one of [search_specific_webpages, search_urls_on_service_bw, simple_search_googleapiwrapper, wikipedia, calculator].
+    Action: The action to take is one of [search_specific_webpages, search_urls_on_service_bw, simple_search_googleapiwrapper, wikipedia].
     Action Input: Input to the action, input to the tool: {input}
     Observation: the result of the action.
     ... (this Thought/Action/Action Input/Observation can repeat up to N times;  the tools are provided in the order you should try to deploy)
@@ -509,6 +510,8 @@ agent.agent.llm_chain.prompt.template = """
     """
     # For application forms, provide links to the website with the application form (Antrag).
     # search_specific_webpages, search_urls_on_service_bw, simple_search_googleapiwrapper, wikipedia, calculator
+# , calculator
+
 
 ##### Managing prompt size: https://python.langchain.com/v0.1/docs/expression_language/cookbook/prompt_size/
 

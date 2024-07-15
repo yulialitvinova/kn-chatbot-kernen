@@ -490,9 +490,9 @@ class WebResearchRetriever(BaseRetriever):
         logger.info("Grabbing most relevant splits from urls...")
         docs = []
         for query in questions:
-            docs.extend(self.vectorstore.similarity_search(query)) ###AS await
+            #docs.extend(self.vectorstore.similarity_search(query)) ###AS await
             #docs.extend(self.vectorstore.similarity_search_with_relevance_scores(query))
-            #docs.extend(self.vectorstore.max_marginal_relevance_search(query, lambda_mult=0.25)) ### optimize for similartiy among selected documents
+            docs.extend(self.vectorstore.max_marginal_relevance_search(query, lambda_mult=0.25)) ### optimize for similartiy among selected documents
             # ### embeddings need to be added; the same for similarity_search_by_vector
             # docs.extend(self.vectorstore.max_marginal_relevance_search_by_vector(
             #     embedding=OpenAIEmbedding(),

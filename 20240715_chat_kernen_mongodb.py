@@ -408,13 +408,13 @@ wikipedia = WikipediaQueryRun(
 tools = [
     Tool(
         name='search_specific_webpages',
-        description="Tool to search information for citizens (users) who are in difficult situations or ask about their specific situations, e.g., family (children and childcare, marriage or divorce, schooling and further education), job, healthcare situations. The tool scraps official webpages.",
+        description="Tool to search information for citizens (users) who are in difficult situations or ask about their specific situations, e.g., family (children and childcare, marriage or divorce, schooling and further education), job, healthcare, vocational training and similar situations. ",
         func=web_tool._run,
         ),
     Tool(
         name="search_urls_on_service_bw",
         func=service_bw_search_tool.run,
-        description="Very helpful tool if the citizen (user) specifically asks how to apply for a benefit or a service, or mentions he or she needs link to an application form or information specific for his or her community, e.g., Kernen. Tool to use if the tool 'search_specific_webpages' has replied with 'Es tut mir leid, ich habe nicht genügend Informationen'.",
+        description="Very helpful tool if the citizen (user) specifically asks how to apply for a benefit or a service, or mentions he or she needs link to an application form or information specific for his or her community, e.g., Kernen.",
     ),
     Tool(
         name="simple_search_googleapiwrapper",
@@ -477,7 +477,7 @@ agent.agent.llm_chain.prompt.template = """
     Action: The action to take is one of [search_specific_webpages, search_urls_on_service_bw, simple_search_googleapiwrapper, wikipedia].
     Action Input: Input to the action, input to the tool: {input}
     Observation: the result of the action.
-    ... (this Thought/Action/Action Input/Observation can repeat up to N times)
+    ... (this Thought/Action/Action Input/Observation can repeat up to N times;  the tools are provided in the order you should try to deploy)
     ```
     
     When you have a response to say to the Human, or if you do not need to use a tool, you must use the format:

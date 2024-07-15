@@ -482,8 +482,8 @@ agent.agent.llm_chain.prompt.template = """<<SYS>> \n You are an assistant to ci
     ```
     Input: the user's description of his or her situation, i.e. the user's question or query. \
     Thought: Do I need to use a tool? \
-    Action: The action to take is one of [search_specific_webpages, search_urls_on_service_bw, simple_search_googleapiwrapper, wikipedia]. \
-    Action input: Input to the action, input to the tool: {input} \
+    Action: The action to take is one of the tools [search_specific_webpages, search_urls_on_service_bw, simple_search_googleapiwrapper, wikipedia]. \
+    Action input: Input to the action, input to the tool. \
     Observation: The result of the action. \
     ... (this Thought/Action/Action Input/Observation can repeat up to N times) \
     ```

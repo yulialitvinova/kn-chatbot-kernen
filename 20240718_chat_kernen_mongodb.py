@@ -96,7 +96,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 
 # conda list -e > requirements.txt
-# git push origin master:main
+# git push origin main:main
 
 os.environ['OPENAI_API_KEY'] = st.secrets["openai_api_key"]
 os.environ["OPEN_API_BASE"] = "https://api.openai.com/v1"
@@ -225,12 +225,14 @@ web_retriever_for_tool = WebResearchRetriever.from_llm(
 template_query_spec_search="""<<SYS>> \n You are an assistant to citizens in difficult situations. \
         
         To answer the questions, use the information in documents provided to you. \
-        Answer the question in the language of the question. \
+        The answer must be in the same language as the user's question, or input: if the user asks in German, reply in German. \
+        In your response, always use "Sie" to address the user, keine "Du". \
+        When applicable, provide your response to the user in bullet points. \
         
-        ALWAYS return a "SOURCES" part in your answer.\
-        QUESTION: {question}\
+        ALWAYS return a "SOURCES" part in your answer. \
+        QUESTION: {question} \
         Documents to use to provide the answer: {summaries} \
-        FINAL ANSWER: [your response here] \
+        FINAL ANSWER: [final response here] \
         SOURCES:  {sources}
         """
 
@@ -255,7 +257,7 @@ template_query_urls_sugg="""<<SYS>> \n You are an assistant to citizens who seek
         
         QUESTION: {question}\
         Retrieved documents: {summaries}\
-        FINAL ANSWER: [your final response here] \
+        FINAL ANSWER: [final response here] \
         SOURCES: [list of the URLs] \
         """
 #{source_documents}
@@ -401,22 +403,19 @@ wikipedia = WikipediaQueryRun(
 # wikidata = WikidataQueryRun(api_wrapper=WikidataAPIWrapper())
 
 tools = [
-    # Tool(
-    #     name='search_specific_webpages',
-    #     description="Tool to search answers for citizens who need information about their specific situations like \
-    #         family (children and childcare, marriage or divorce, schooling and further education), job, healthcare situations\
-    #         or ask where and how they can find support. The tool scraps official webpages.",
-    #     func=web_tool._run,
-    #     ),
+    Tool(
+        name='search_specific_webpages',
+        description="Tool to search answers for citizens who need information about their specific situations like \
+            family (children and childcare, marriage or divorce, schooling and further education), job, healthcare, \
+            or ask where and how they can find support. The tool scraps official webpages.",
+        func=web_tool._run,
+        ),
     Tool(
         name="search_urls_on_service_bw",
         func=service_bw_search_tool.run,
-        description="Tool to search for urls on service-bw.de \
-            Very helpful tool if the user asks for application forms or how she or he can submit an application form or\
-            specifically mentions he or she needs information for his or her community, e.g., Kernen.\
-            The tool should be used if the tool search_specific_webpages has not provided an answer.\
-            The tool is helpful if the user claims in the query that the provided links do not work, are not correct, were not found, redirect to not existing or error pages, etc.\
-            If so, consider history conversation, especially the last user query, and the tool.",
+        description="Very helpful tool if the user asks for application forms or how she or he can submit an application form, \
+            for example, 'Wie kann ich ... beantragen?' \
+            or specifically mentions he or she needs information about services in his or her community, e.g., Kernen.",
     ),
     Tool(
         name="simple_search_googleapiwrapper",
@@ -445,6 +444,10 @@ tools = [
     #     description='Useful for when you need to answer questions that require calculations like adding, subtraction, multiplying.',
     #     ),
     ]
+
+            # The tool should be used if the tool search_specific_webpages has not provided a valid answer.\
+            # The tool is helpful if the user claims in the query that the provided links do not work, are not correct, were not found, redirect to not existing or error pages, etc.\
+            # If so, consider history conversation, especially the last user query, and use the tool.
 
 #audio_tool = load_tools(["eleven_labs_text2speech"])
 #tools.append(audio_tool)
@@ -478,28 +481,38 @@ agent.agent.llm_chain.prompt.template = """
     ```
     Action: The action to take is one of [search_specific_webpages, search_urls_on_service_bw, simple_search_googleapiwrapper, wikipedia].
     Action Input: Input to the action, input to the tool: {input}
+    ```
+    If the user claims in the query that the provided links do not work, are not correct, were not found, redirect to not existing or error pages, etc.\
+    try to use the tool search_urls_on_service_bw. You must then consider the conversation history, especially the last but one user query, and then use the tool. \
+        For example:
+            Input: Wie kann ich Kindergeld beantragen?
+            Your final answer: some link.
+            Input: The link is incorrect.
+            Thought: Do I need to use a tool? -- Yes, I need to use the tool search_urls_on_service_bw. Input to the tool: Wie kann ich Kindergeld beantragen?
+    ```
     Observation: the result of the action.
-    ... (this Thought/Action/Action Input/Observation can repeat up to N times;  the tools are provided in the order you should try to deploy)
+    ... (this Thought/Action/Action Input/Observation can repeat up to N times before one of the tools provides a complete response)
+    If in the first attempt the tool tool search_specific_webpages did not provided a valid answer, try to use the tool search_urls_on_service_bw . \
     ```
     
     When you have a response to say to the Human, or if you do not need to use a tool, you must use the format:
     
     ```
-    Thought: Do I need to use a tool? No.
-    AI: [your response here -- use the text from the tool's output]
+    Thought: Do I need to use a tool? No, I now have an answer.
+    AI: [final response here; ALWAYS provide SOURCES delivered by the tool]
     ```
-   
-    Begin!
-
-    If you do not have the answer, reply with 'Es tut mir Leid, ich habe nicht genügend Informationen. Bitte spezifizieren Sie Ihre Anfrage oder besuchen Sie bitte: https://www.service-bw.de/zufi/lebenslagen .'
-    Be as precise as possible. Do not provide generic answers. Do not provide answers like "Wenden Sie sich an das zuständige Amt oder Behörde", without naming the officials. 
-    Always include source pages (SOURCES) into your response. Include only links extracted using a tool. DO NOT generate links yoursef.
-    If one of the link contains "service-bw" or "lebenslagen" or "leistungen", provide this link as the first one.
-
-    In your response, always use "Sie" to address the user, keine "Du".
     
+    If the final response comes from the tool search_specific_webpages, ALWAYS use the tool output as your final response.
+    If the links contain words 'lebenslagen', 'leistungen', put these links first.
+    
+    If you do not have the answer, reply with 'Es tut mir Leid, ich habe nicht genügend Informationen. Bitte spezifizieren Sie Ihre Anfrage oder besuchen Sie bitte: https://www.service-bw.de/zufi/lebenslagen .'
+    Always include source pages (SOURCES) into your response. Include only links extracted using a tool. DO NOT generate links yoursef.
+    
+    In your response, always use 'Sie' to address the user, keine 'Du'.
     The answer must be in the same language as the user's question, or input: if the user asks in German, reply in German.
     If possible, provide your response to the user in bullet points.
+
+    Begin!
 
     Conversation history: {chat_history}
     

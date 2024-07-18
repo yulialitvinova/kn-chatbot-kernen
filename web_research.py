@@ -492,8 +492,9 @@ class WebResearchRetriever(BaseRetriever):
         for query in questions:
             #docs.extend(self.vectorstore.similarity_search(query)) ###AS await
             #docs.extend(self.vectorstore.similarity_search_with_relevance_scores(query))
-            docs.extend(self.vectorstore.max_marginal_relevance_search(query, lambda_mult=0.25)) ### optimize for similartiy among selected documents
+            docs.extend(self.vectorstore.max_marginal_relevance_search(query, k=3, lambda_mult=0.5)) ### optimize for similartiy among selected documents
             # ### embeddings need to be added; the same for similarity_search_by_vector
+            
             # docs.extend(self.vectorstore.max_marginal_relevance_search_by_vector(
             #     embedding=OpenAIEmbedding(),
             #     lambda_mult=0.5, k=3))
@@ -513,6 +514,7 @@ class WebResearchRetriever(BaseRetriever):
 
         unique_documents = docs #list(unique_documents_dict.values())
         logger.info(f"Number of unique documents: {len(unique_documents)}")
+
         return unique_documents
 
     async def _aget_relevant_documents(

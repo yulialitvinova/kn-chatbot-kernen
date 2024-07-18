@@ -224,36 +224,39 @@ web_retriever_for_tool = WebResearchRetriever.from_llm(
 
 template_query_spec_search="""<<SYS>> \n You are an assistant to citizens in difficult situations. \
         
-        To answer the questions, summarize the information in documents provided to you. \
-        Answer the question in the language of the question.\
-        If you do not know the answer reply with 'Es tut mir Leid, ich habe nicht genügend Informationen'.\
+        To answer the questions, use the information in documents provided to you. \
+        Answer the question in the language of the question. \
         
         ALWAYS return a "SOURCES" part in your answer.\
         QUESTION: {question}\
-        Documents to summarize: {summaries} \
-        FINAL ANSWER: \
-        SOURCES:  {sources}"""
+        Documents to use to provide the answer: {summaries} \
+        FINAL ANSWER: [your response here] \
+        SOURCES:  {sources}
+        """
 
 QA_CHAIN_PROMPT_spec_search = PromptTemplate(
     template=template_query_spec_search, input_variables=["summaries", "question", "sources"] # , "link"]
     )
+
+#If you do not know the answer reply with 'Es tut mir Leid, ich habe nicht genügend Informationen'.\
 
 #vectorstore_urls_sugg.add_documents(documents)
 web_retriever_for_tool_urls = vectorstore_urls_sugg.as_retriever(
     search_kwargs={"k": 4}) # search_type="mmr"
 ##### https://python.langchain.com/v0.2/docs/how_to/vectorstore_retriever/
 
-template_query_urls_sugg="""<<SYS>> \n You are an assistant to citizens in difficult situations. \
+template_query_urls_sugg="""<<SYS>> \n You are an assistant to citizens who seek official information for their difficult situations. \
         
         You need to find the relevant url (i.e., Document(metadata=source)) in retrieved DOCUMENTS, based on the Document(page_content) extracted above.\
         
-        If you do not know the answer reply with 'Es tut mir Leid, ich habe nicht genügend Informationen'.\
-        Provide only a list of URLs as your FINAL ANSWER.\
+        Provide the list of the URLs in your FINAL ANSWER.\
+        Reply in the following format: To [execute the action the user asked for], please, visit [URL].\
+        Reply in the language of the user's question.\
         
         QUESTION: {question}\
         Retrieved documents: {summaries}\
-        FINAL ANSWER: \
-        SOURCES: \
+        FINAL ANSWER: [your final response here] \
+        SOURCES: [list of the URLs] \
         """
 #{source_documents}
 #SOURCE: {source_documents}
@@ -292,6 +295,7 @@ class WebResearchTool(BaseTool):
         docs_for_summaries = []
         for document in returned_documents:
             docs_for_summaries.append(document.page_content)
+            #print(f"*The next document*: {document.page_content}")
 
         sources_for_user = []
         for document in returned_documents:
@@ -397,20 +401,27 @@ wikipedia = WikipediaQueryRun(
 # wikidata = WikidataQueryRun(api_wrapper=WikidataAPIWrapper())
 
 tools = [
-    Tool(
-        name='search_specific_webpages',
-        description="Tool to search information for citizens asking about their specific family (children and childcare, marriage or divorce, schooling and further education), job, healthcare situations or recreational offerings. The tool scraps official webpages.",
-        func=web_tool._run,
-        ),
+    # Tool(
+    #     name='search_specific_webpages',
+    #     description="Tool to search answers for citizens who need information about their specific situations like \
+    #         family (children and childcare, marriage or divorce, schooling and further education), job, healthcare situations\
+    #         or ask where and how they can find support. The tool scraps official webpages.",
+    #     func=web_tool._run,
+    #     ),
     Tool(
         name="search_urls_on_service_bw",
         func=service_bw_search_tool.run,
-        description="Tool to search for urls on service-bw.de Very helpful tool if the user asks for application forms ors specifically mentions he or she needs information for his or her community, e.g., Kernen.",
+        description="Tool to search for urls on service-bw.de \
+            Very helpful tool if the user asks for application forms or how she or he can submit an application form or\
+            specifically mentions he or she needs information for his or her community, e.g., Kernen.\
+            The tool should be used if the tool search_specific_webpages has not provided an answer.\
+            The tool is helpful if the user claims in the query that the provided links do not work, are not correct, were not found, redirect to not existing or error pages, etc.\
+            If so, consider history conversation, especially the last user query, and the tool.",
     ),
     Tool(
         name="simple_search_googleapiwrapper",
         func=search.run,
-        description="Search Internet for information after 2020, i.e., search internet for the present-day information. Helpful to provide information on upcoming events or news. Helper tool to search_specific_webpages.",
+        description="Tool to search Internet for general information after 2020, i.e., search internet for the present-day information. Helpful to provide information on upcoming events or news.",
     ),
     # Tool(
     #     name="simple_search_serpapi",
@@ -425,7 +436,7 @@ tools = [
     Tool(
         name="wikipedia",
         func=wikipedia.run,
-        description="Search for the term in Wikipedia if the search on the official webpages or search for the present-day information in the Internet haven't provided relevant information.",
+        description="Tool to search for the term in Wikipedia if the search on the official webpages or search for the present-day information in the Internet haven't provided relevant information.",
         #return_direct=True,        
         ), 
     # Tool(
@@ -452,10 +463,12 @@ agent = initialize_agent(
 ##### Force choose at least one tool: https://python.langchain.com/v0.1/docs/modules/model_io/chat/function_calling/
 
 agent.agent.llm_chain.prompt.template = """
-    You are an agent who provides information to citizens on their situations and circumstances using one of the tools and the conversation history.
+    You are an agent who provides information to citizens on their situations and circumstances using one of the tools AND the conversation history.
     Your role is to provide the citizens with reliable and relevant information on what they should do, links to the official website where they can find further information, or contact information, or links to pages where they can submit neccesary application forms.    
-
-    Use the following format:
+    The initial assumption is that the user is located in Germany, Baden-Württemberg, Kernen.
+    The user can formulate her query as a question or a description of her situation.
+    
+    To respond, use the following format:
     
     ```
     Input: the user's description of their situation, or the users question.
@@ -473,27 +486,22 @@ agent.agent.llm_chain.prompt.template = """
     
     ```
     Thought: Do I need to use a tool? No.
-    AI: [your response here]
+    AI: [your response here -- use the text from the tool's output]
     ```
    
     Begin!
 
-    In your response, always use "Sie" to address the user, keine "Du".
-    If you do not have the answer, reply with 'Es tut mir Leid, ich habe nicht genügend Informationen. Bitte spezifizieren Sie Ihre Anfrage.'
-
-    Always include source pages (SOURCES) into your response. Include only links you extracted using a tool. DO NOT generate links yoursef.
-    If the tool has extracted more than three links, provide three the most relevant ones.
+    If you do not have the answer, reply with 'Es tut mir Leid, ich habe nicht genügend Informationen. Bitte spezifizieren Sie Ihre Anfrage oder besuchen Sie bitte: https://www.service-bw.de/zufi/lebenslagen .'
+    Be as precise as possible. Do not provide generic answers. Do not provide answers like "Wenden Sie sich an das zuständige Amt oder Behörde", without naming the officials. 
+    Always include source pages (SOURCES) into your response. Include only links extracted using a tool. DO NOT generate links yoursef.
     If one of the link contains "service-bw" or "lebenslagen" or "leistungen", provide this link as the first one.
 
-    If you do not have links to provide, use tool [search_urls_on_service_bw] to find the links.
-    If the user claims that the provided links to do work, are not correct, were not found, or redirect to not existing pages, take the previous input and use tool [search_urls_on_service_bw].
-    Always encourage the user to visit the source website for more information. 
-
+    In your response, always use "Sie" to address the user, keine "Du".
+    
     The answer must be in the same language as the user's question, or input: if the user asks in German, reply in German.
     If possible, provide your response to the user in bullet points.
-    Be as precise as possible. Do not provide generic answers. Do not provide answers like "Wenden Sie sich an das zuständige Amt oder Behörde", without naming the officials. If you do not have a more specific answer, add the following: "Für weitere Informationen, besuchen Sie bitte: https://www.service-bw.de/zufi/lebenslagen "
 
-    Previous conversation history: {chat_history}
+    Conversation history: {chat_history}
     
     New input: {input}
     

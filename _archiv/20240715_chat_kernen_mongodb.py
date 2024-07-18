@@ -414,7 +414,7 @@ tools = [
     Tool(
         name="search_urls_on_service_bw",
         func=service_bw_search_tool.run,
-        description="Very helpful tool if the citizen (user) specifically asks how to apply for a benefit or a service, or mentions he or she needs link to an application form or information specific for his or her community, e.g., Kernen.",
+        description="Tool to search for urls on service-bw.de Very helpful tool if the citizen (user) specifically asks how to apply for a benefit or a service, or mentions he or she needs link to an application form or information specific for his or her community, e.g., Kernen.",
     ),
     Tool(
         name="simple_search_googleapiwrapper",
@@ -493,9 +493,12 @@ agent.agent.llm_chain.prompt.template = """
     The answer must be in the same language as the user's question, or input: if the user asks in German, reply in German.
     If possible, provide your response to the user in bullet points.
 
+    Always include source pages (SOURCES) into your response. Include only links you extracted using a tool. DO NOT generate links yoursef.
+    DO NOT generate links in response yoursef.
+    If one of the link contains "service-bw" or "lebenslagen" or "leistungen", provide this link as the first one.
+
     Be as precise as possible. Do not provide generic answers. Do not provide answers like "Wenden Sie sich an das zuständige Amt oder Behörde".
     If you do not have the final response, reply with "Es tut mir Leid, ich habe nicht genügend Informationen. Bitte spezifizieren Sie Ihre Anfrage."
-    DO NOT generate links in response yoursef.
 
     If the user's input is that the provided links to do work, are not correct, were not found, redirect to not existing pages or to error pages, use tool [search_urls_on_service_bw] to find the correct links.
 

@@ -148,13 +148,15 @@ template_query="""<<SYS>> \n You are an assistant to citizens in difficult situa
 
         To answer the question, summarize the information in documents provided to you.
         Answer the question in the language of the question.\
-        If you do not know the answer reply with 'Es tut mir Leid, ich habe nicht genügend Informationen'.\
         
         ALWAYS return a "SOURCES" part in your answer.\
         QUESTION: {question}\
         Documents to summarize: {summaries}\
         FINAL ANSWER: \
-        SOURCES: {sources}"""
+        SOURCES: {sources} \
+
+        If you do not know the answer reply with 'Es tut mir Leid, ich habe nicht genügend Informationen'.
+        """
 
 #{link}
         # "summaries"
@@ -200,6 +202,7 @@ async def result_response(user_input):
     docs_for_summaries = []
     for document in returned_documents:
         docs_for_summaries.append(document.page_content)
+        print(f"*The next document*: {document.page_content}")
     
     sources_for_user = []
     for document in returned_documents:
@@ -211,7 +214,7 @@ async def result_response(user_input):
     #return result["sources"]
 
 async def main():
-    user_input = "Wie beantrage ich Kinderzuschlag?"
+    user_input = "Ich will ein Au Pair Mädchen anstellen. was muss ich beachten?"
     result2 = await result_response(user_input)#, run_manager=CallbackManagerForRetrieverRun())
     print(result2)
 

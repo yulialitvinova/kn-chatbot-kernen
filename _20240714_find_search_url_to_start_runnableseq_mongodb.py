@@ -78,7 +78,7 @@ vectorstore_urls_sugg = MongoDBAtlasVectorSearch(
     index_name=vector_search_index_url
     )
 
-#####################################################
+# #####################################################
 # # Path to the chromedriver executable
 # #driver_path = 'path/to/chromedriver'  # Replace with the actual path to chromedriver
 # ### https://developer.chrome.com/docs/chromedriver/downloads
@@ -87,7 +87,11 @@ vectorstore_urls_sugg = MongoDBAtlasVectorSearch(
 # driver_path = "/04_search_or_scrapping/chromedriver-win64"
 # #browser_path = "C:/Users/litvi/knowledge/knowledge_chatbot-1/04_search_or_scrapping/chromedriver-win64"
 # # URL to scrape
-# url_search = "https://www.service-bw.de/zufi/lebenslagen/5000312"
+# url_search = "https://www.service-bw.de/zufi/leistungen/6009311"
+# #"https://www.service-bw.de/zufi/lebenslagen/5000243"
+# #"https://www.service-bw.de/zufi/leistungen/780"
+# # "https://www.service-bw.de/zufi/lebenslagen/5000312"
+
 
 # # Initialize the Selenium WebDriver
 # #options = webdriver.ChromeOptions()
@@ -189,7 +193,7 @@ template_query_urls_sugg="""<<SYS>> \n You are an assistant to citizens in diffi
         You need to find the relevant url (i.e., Document(metadata=source)) in retrieved DOCUMENTS, based on the Document(page_content) extracted above.\
         
         If you do not know the answer reply with 'Es tut mir Leid, ich habe nicht genügend Informationen'.\
-        Provide only a list of URLs as your FINAL ANSWER.\
+        Provide a list of URLs with page titles as your FINAL ANSWER.\
         
         QUESTION: {question}\
         Retrieved documents: {summaries}\
@@ -199,6 +203,8 @@ template_query_urls_sugg="""<<SYS>> \n You are an assistant to citizens in diffi
 #{source_documents}
 #SOURCE: {source_documents}
 #ALWAYS return a "SOURCES" part in your answer.\
+
+#Provide only a list of URLs as your FINAL ANSWER
 
 QA_CHAIN_PROMPT_urls_sugg = PromptTemplate(template=template_query_urls_sugg, 
                          input_variables=["summaries", "question"])
@@ -216,7 +222,7 @@ QA_CHAIN_PROMPT_urls_sugg = PromptTemplate(template=template_query_urls_sugg,
 #     chain_type_kwargs={"prompt": QA_CHAIN_PROMPT_urls_sugg}
 #     )
 
-user_input = "Landesfamilienpass"
+user_input = "Schularten"
 retriever=vectorstore_urls_sugg.as_retriever(search_kwargs={"k": 2}, )
 returned_documents = retriever.invoke(user_input) # get_relevant_documents(user_input)
 #print(returned_documents)

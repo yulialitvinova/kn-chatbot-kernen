@@ -74,7 +74,7 @@ client = MongoClient(mongodb_atlas_cluster_uri, server_api=ServerApi('1'))
 logging.basicConfig()
 logging.getLogger("web_research").setLevel(logging.INFO)
 
-embedding_size = 1536 #1024 
+embedding_size = 1536 # 1536 # 1024 
 embeddings_model = OpenAIEmbeddings()  #OpenAIEmbeddings(disallowed_special=())
 # index = faiss.IndexFlatL2(embedding_size)  
 # vectorstore = FAISS(embeddings_model.embed_query, index, InMemoryDocstore({}), {})
@@ -85,7 +85,7 @@ embeddings_model = OpenAIEmbeddings()  #OpenAIEmbeddings(disallowed_special=())
 #     )
 
 database = client["99_kernen"] #db_name = "99_kernen"
-collection = database["99_chroma_db_kernen"] #collection_name = "99_chroma_db_kernen"
+collection = database["99_kernen_general"] #collection_name = "99_chroma_db_kernen"
 vector_search_index = "vector_index"
 #mongodb_collection = client[db_name][collection_name]
 
@@ -130,7 +130,7 @@ and should have a question mark at the end: \n\n {question} [/INST]""",
 ##    ChatHistory: {chat_history}
 ##    Follow Up Input: {question}
 
-text_splitter = RecursiveCharacterTextSplitter(chunk_size=1536, chunk_overlap=64) #1024
+text_splitter = RecursiveCharacterTextSplitter(chunk_size=1536, chunk_overlap=64) # 1024 # 1536
 
 web_research_retriever = WebResearchRetriever.from_llm(
     vectorstore=vectorstore, ## vectorestore where webpages are stored
@@ -154,8 +154,6 @@ template_query="""<<SYS>> \n You are an assistant to citizens in difficult situa
         Documents to summarize: {summaries}\
         FINAL ANSWER: \
         SOURCES: {sources} \
-
-        If you do not know the answer reply with 'Es tut mir Leid, ich habe nicht genügend Informationen'.
         """
 
 #{link}

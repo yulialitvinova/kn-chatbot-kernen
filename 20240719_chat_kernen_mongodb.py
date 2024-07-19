@@ -57,7 +57,7 @@ from langchain_google_community import GoogleSearchAPIWrapper
 ##############from search import GoogleSearchAPIWrapper
 # from langchain_community.tools import DuckDuckGoSearchRun
 # from langchain_community.utilities import SearchApiAPIWrapper
-# from langchain_community.utilities import SerpAPIWrapper
+from langchain_community.utilities import SerpAPIWrapper
 from langchain_community.tools import WikipediaQueryRun
 from langchain_community.utilities import WikipediaAPIWrapper
 # from langchain.docstore import Wikipedia
@@ -102,6 +102,7 @@ os.environ['OPENAI_API_KEY'] = st.secrets["openai_api_key"]
 os.environ["OPEN_API_BASE"] = "https://api.openai.com/v1"
 os.environ["GOOGLE_CSE_ID"] = st.secrets["google_cse_id"] 
 os.environ["GOOGLE_API_KEY"] = st.secrets["google_api_key"]
+os.environ["SERPAPI_API_KEY"] = st.secrets["serpapi_api_key"]
 
 mongodb_username = st.secrets["mongodb_username"]
 mongodb_password = st.secrets["mongodb_password"]
@@ -112,11 +113,11 @@ encoded_password = quote_plus(mongodb_password)
 mongodb_atlas_cluster_uri = f'mongodb+srv://{encoded_username}:{encoded_password}@clusterfree.xiknzbp.mongodb.net/?appName=clusterfree'
 client = MongoClient(mongodb_atlas_cluster_uri, server_api=ServerApi('1'))
 
-# try:
-#     client.admin.command('ping')
-#     print("Pinged your deployment. You successfully connected to MongoDB!")
-# except Exception as e:
-#     print(e)
+try:
+    client.admin.command('ping')
+    print("Pinged your deployment. You successfully connected to MongoDB!")
+except Exception as e:
+    print(e)
 
 st.set_page_config(page_title="Gemeinde Kernen",
                    #page_icon=,
@@ -162,7 +163,7 @@ llm = ChatOpenAI(
     )
 
 embeddings_model = OpenAIEmbeddings()
-embeddings_size = 1536 #1024
+embeddings_size = 1536 #1536 #1024
 #HuggingFaceEmbedding(model_name="BAAI/bge-small-en-v1.5")
 #HuggingFaceBgeEmbeddings(model_name="BAAI/bge-base-en")
 
@@ -172,7 +173,7 @@ embeddings_size = 1536 #1024
 #     #persist_directory="https://github.com/yulialitvinova/chatbot_kernen/tree/main/99_chroma_db_kernen"
 #     )
 database = client["99_kernen"] #db_name = "99_kernen"
-collection = database["99_chroma_db_kernen"] #collection_name = "99_chroma_db_kernen"
+collection = database["99_kernen_general"] #collection_name = "99_chroma_db_kernen"
 vector_search_index = "vector_index"
 vectorstore = MongoDBAtlasVectorSearch( #).from_documents(
     #documents = docs,
@@ -244,14 +245,14 @@ QA_CHAIN_PROMPT_spec_search = PromptTemplate(
 
 #vectorstore_urls_sugg.add_documents(documents)
 web_retriever_for_tool_urls = vectorstore_urls_sugg.as_retriever(
-    search_kwargs={"k": 4}) # search_type="mmr"
+    search_kwargs={"k": 4}) # , search_type="mmr"
 ##### https://python.langchain.com/v0.2/docs/how_to/vectorstore_retriever/
 
 template_query_urls_sugg="""<<SYS>> \n You are an assistant to citizens who seek official information for their difficult situations. \
         
         You need to find the relevant url (i.e., Document(metadata=source)) in retrieved DOCUMENTS, based on the Document(page_content) extracted above.\
         
-        Provide the list of the URLs in your FINAL ANSWER.\
+        Provide the list of the URLs with page titles as your FINAL ANSWER.\
         Reply in the following format: To [execute the action the user asked for], please, visit [URL].\
         Reply in the language of the user's question.\
         
@@ -262,6 +263,7 @@ template_query_urls_sugg="""<<SYS>> \n You are an assistant to citizens who seek
         """
 #{source_documents}
 #SOURCE: {source_documents}
+#SOURCES: [list of the URLs] \
 #ALWAYS return a "SOURCES" part in your answer.\
 
 QA_CHAIN_PROMPT_urls_sugg = PromptTemplate(template=template_query_urls_sugg, 
@@ -363,7 +365,7 @@ class ServiceBWurlsSearchTool(BaseTool):
         # #documents = text_splitter_urls_sugg.split_documents(documents)
         # documents = text_splitter.split_documents(documents)
         # vectorstore_urls_sugg.add_documents(documents)
-        retriever = vectorstore_urls_sugg.as_retriever(search_kwargs={"k": 4})
+        retriever = vectorstore_urls_sugg.as_retriever(search_kwargs={"k": 2})
         # https://www.mongodb.com/docs/atlas/atlas-vector-search/ai-integrations/langchain/#create-the-atlas-vector-search-index
         returned_documents = retriever.invoke(question)
         qa_chain = QA_CHAIN_PROMPT_urls_sugg | llm
@@ -413,9 +415,7 @@ tools = [
     Tool(
         name="search_urls_on_service_bw",
         func=service_bw_search_tool.run,
-        description="Very helpful tool if the user asks for application forms or how she or he can submit an application form, \
-            for example, 'Wie kann ich ... beantragen?' \
-            or specifically mentions he or she needs information about services in his or her community, e.g., Kernen.",
+        description="Very helpful tool if the user asks how she can apply for support or service from officials, for application forms or how she or he can submit an application form, for example, Wie kann ich ... beantragen?",
     ),
     Tool(
         name="simple_search_googleapiwrapper",
@@ -425,7 +425,7 @@ tools = [
     # Tool(
     #     name="simple_search_serpapi",
     #     func=search_serpapi.run,
-    #     description="Search Internet for information after 2020, i.e., search internet for the present-day information.",
+    #     description="Tool to search Internet for general information after 2020, i.e., search internet for the present-day information. Helpful to provide information on upcoming events or news.",
     #     ),
     # Tool(
     # name="simple_search_ddg",
@@ -474,39 +474,47 @@ agent.agent.llm_chain.prompt.template = """
     To respond, use the following format:
     
     ```
-    Input: the user's description of their situation, or the users question.
+    Input: the user's description of their situation, or the user's question.
     Thought: Do I need to use a tool?
+
     ```
-    If Yes, i.e., if you need to use a tool:    
+    If Yes, i.e., if you need to use a tool:
+
     ```
     Action: The action to take is one of [search_specific_webpages, search_urls_on_service_bw, simple_search_googleapiwrapper, wikipedia].
     Action Input: Input to the action, input to the tool: {input}
-    ```
-    If the user claims in the query that the provided links do not work, are not correct, were not found, redirect to not existing or error pages, etc.\
-    try to use the tool search_urls_on_service_bw. You must then consider the conversation history, especially the last but one user query, and then use the tool. \
-        For example:
-            Input: Wie kann ich Kindergeld beantragen?
-            Your final answer: some link.
-            Input: The link is incorrect.
-            Thought: Do I need to use a tool? -- Yes, I need to use the tool search_urls_on_service_bw. Input to the tool: Wie kann ich Kindergeld beantragen?
-    ```
     Observation: the result of the action.
     ... (this Thought/Action/Action Input/Observation can repeat up to N times before one of the tools provides a complete response)
-    If in the first attempt the tool tool search_specific_webpages did not provided a valid answer, try to use the tool search_urls_on_service_bw . \
     ```
-    
+
     When you have a response to say to the Human, or if you do not need to use a tool, you must use the format:
     
     ```
     Thought: Do I need to use a tool? No, I now have an answer.
-    AI: [final response here; ALWAYS provide SOURCES delivered by the tool]
+    AI: [final response here; if a tool delivered SOURCES, ALWAYS provide these SOURCES]
+
     ```
+    
+    If the user claims in the query (input) that the provided links are not correct, do not work, redirect to not existing pages, or error pages, or show Page was not found,
+    that the links are not helpful or do not provide the information the user needs, are not relevant, etc.
+    try to use the tool search_urls_on_service_bw 
+    You must then consider the conversation history, especially the last but one user query, and then use the tool.
+    Consider the example:
+        Input from the user: Wie kann ich ABC beantragen?
+        Your previous response: <some link>.
+        Input from the user: The link is incorrect.
+        Thought: Do I need to use a tool? -- Yes, 
+        Action: try to use the tool [search_urls_on_service_bw]
+        Action input: Wie kann ich ABC beantragen?
+    
     
     If the final response comes from the tool search_specific_webpages, ALWAYS use the tool output as your final response.
     If the links contain words 'lebenslagen', 'leistungen', put these links first.
     
+    If in the first attempt (Thought/Action/Action Input/Observation) you used the tool search_specific_webpages and it did not provided a valid answer, try to use the tool search_urls_on_service_bw .
+
     If you do not have the answer, reply with 'Es tut mir Leid, ich habe nicht genügend Informationen. Bitte spezifizieren Sie Ihre Anfrage oder besuchen Sie bitte: https://www.service-bw.de/zufi/lebenslagen .'
-    Always include source pages (SOURCES) into your response. Include only links extracted using a tool. DO NOT generate links yoursef.
+    Always include links to source pages (SOURCES) into your response. DO NOT generate links yoursef. Include only links extracted using a tool.
     
     In your response, always use 'Sie' to address the user, keine 'Du'.
     The answer must be in the same language as the user's question, or input: if the user asks in German, reply in German.

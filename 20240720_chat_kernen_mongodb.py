@@ -40,7 +40,7 @@ load_dotenv()
 #import web_research
 from web_research import WebResearchRetriever
 
-from langchain_community.vectorstores import Chroma
+# from langchain_community.vectorstores import Chroma
 
 ###from streamlit_chromadb_connection.chromadb_connect import ChromadbConnection
 # from langchain.vectorstores import FAISS

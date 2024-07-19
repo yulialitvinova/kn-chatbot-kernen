@@ -27,3 +27,4 @@ pypdf
 pypdf2
 langchain_mongodb
 langchain_google_community
+beautifulsoup4

@@ -104,6 +104,8 @@ os.environ["GOOGLE_CSE_ID"] = st.secrets["google_cse_id"]
 os.environ["GOOGLE_API_KEY"] = st.secrets["google_api_key"]
 os.environ["SERPAPI_API_KEY"] = st.secrets["serpapi_api_key"]
 
+cse_id_simple_search = st.secrets["cse_id_simple_search"]
+
 mongodb_username = st.secrets["mongodb_username"]
 mongodb_password = st.secrets["mongodb_password"]
 encoded_username = quote_plus(mongodb_username)
@@ -113,11 +115,11 @@ encoded_password = quote_plus(mongodb_password)
 mongodb_atlas_cluster_uri = f'mongodb+srv://{encoded_username}:{encoded_password}@clusterfree.xiknzbp.mongodb.net/?appName=clusterfree'
 client = MongoClient(mongodb_atlas_cluster_uri, server_api=ServerApi('1'))
 
-try:
-    client.admin.command('ping')
-    print("Pinged your deployment. You successfully connected to MongoDB!")
-except Exception as e:
-    print(e)
+# try:
+#     client.admin.command('ping')
+#     print("Pinged your deployment. You successfully connected to MongoDB!")
+# except Exception as e:
+#     print(e)
 
 st.set_page_config(page_title="Gemeinde Kernen",
                    #page_icon=,
@@ -201,7 +203,7 @@ vectorstore_urls_sugg = MongoDBAtlasVectorSearch(
 # vectorestore = FAISS(embeddings_model.embed_query, index, InMemoryDocstore({}), {})
 # ###FAISS
 
-search = GoogleSearchAPIWrapper()
+search = GoogleSearchAPIWrapper(google_cse_id=cse_id_simple_search)
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=embeddings_size, chunk_overlap=64)
 # text_splitter_urls_sugg = RecursiveCharacterTextSplitter(chunk_size=200, chunk_overlap=64)
 
@@ -415,12 +417,12 @@ tools = [
     Tool(
         name="search_urls_on_service_bw",
         func=service_bw_search_tool.run,
-        description="Very helpful tool if the user asks how she can apply for support or service from officials, for application forms or how she or he can submit an application form, for example, Wie kann ich ... beantragen?",
+        description="Very helpful tool if the user asks how she can apply for support or service from officials, needs application forms or asks how she or he can submit an application form, for example, Wie kann ich ... beantragen?",
     ),
     Tool(
         name="simple_search_googleapiwrapper",
         func=search.run,
-        description="Tool to search Internet for general information after 2020, i.e., search internet for the present-day information. Helpful to provide information on upcoming events or news.",
+        description="Tool to search Internet for general, present-day information after 2021. Helpful to provide information on today news or upcoming events.",
     ),
     # Tool(
     #     name="simple_search_serpapi",
@@ -468,19 +470,14 @@ agent = initialize_agent(
 agent.agent.llm_chain.prompt.template = """
     You are an agent who provides information to citizens on their situations and circumstances using one of the tools AND the conversation history.
     Your role is to provide the citizens with reliable and relevant information on what they should do, links to the official website where they can find further information, or contact information, or where they can submit neccesary application forms.    
-    The initial assumption is that the user is located in Germany, Baden-Württemberg, Kernen.
+    The initial assumption is that the user is located in Germany, Baden-Württemberg.
         
     To respond, use the following format:
     
     ```
-    Question: the user's description of their situation or the user's question.
+    Question: the user's description of her situation or the user's question.
     Thought: Do I need to use a tool?
-
-    ```
-    If Yes, i.e., if you need to use a tool:
-
-    ```
-    Action: The action to take, thould be one of [search_specific_webpages, search_urls_on_service_bw, simple_search_googleapiwrapper, wikipedia].
+    Action: The action to take, should be one of [search_specific_webpages, search_urls_on_service_bw, simple_search_googleapiwrapper, wikipedia].
     Action Input: Input to the action, input to the tool.
     Observation: the result of the action.
     ... (this Thought/Action/Action Input/Observation can repeat up to N times before one of the tools provides a complete response)
@@ -508,11 +505,8 @@ agent.agent.llm_chain.prompt.template = """
     
     
     If the final response comes from the tool search_specific_webpages, use the tool output as your final response.
-    If the links contain words 'lebenslagen' or 'leistungen', put these links first.
     
-    If in the first attempt (Thought/Action/Action Input/Observation) you used the tool search_specific_webpages and it did not provided a valid answer, try to use the tool search_urls_on_service_bw
-
-    If you do not have the answer, reply with 'Es tut mir Leid, ich habe nicht genügend Informationen. Bitte spezifizieren Sie Ihre Anfrage oder besuchen Sie bitte: https://www.service-bw.de/zufi/lebenslagen .'
+    If you do not have the answer after N attempts, reply with 'Es tut mir Leid, ich habe nicht genügend Informationen. Bitte spezifizieren Sie Ihre Anfrage oder besuchen Sie bitte: https://www.service-bw.de/zufi/lebenslagen .'
     Always include links to source pages (SOURCES) into your response. DO NOT generate links yoursef. Include only links extracted using a tool.
     
     In your response, always use 'Sie' to address the user, keine 'Du'.
@@ -529,6 +523,7 @@ agent.agent.llm_chain.prompt.template = """
     """
     # For application forms, provide links to the website with the application form (Antrag).
     # search_specific_webpages, search_urls_on_service_bw, simple_search_googleapiwrapper, wikipedia, calculator
+    # search_specific_webpages, search_urls_on_service_bw, 
 # , calculator
 
 

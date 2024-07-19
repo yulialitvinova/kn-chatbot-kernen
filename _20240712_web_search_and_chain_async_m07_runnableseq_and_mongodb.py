@@ -119,14 +119,14 @@ search = GoogleSearchAPIWrapper()
 #     url_database_json = file.read()
 # url_database = json.loads(url_database_json)
 
-prompt_search = PromptTemplate(
-    input_variables=["question"],
-    template="""<<SYS>> \n You are an assistant tasked with improving Google search \
-results. \n <</SYS>> \n\n [INST] Generate THREE Google search queries that \
-are similar to this question. The output should be a numbered list of questions, \
-each should be focused on how the matter is dealt with in Germany, Baden-Württemberg, \
-and should have a question mark at the end: \n\n {question} [/INST]""",
-)
+# prompt_search = PromptTemplate(
+#     input_variables=["question"],
+#     template="""<<SYS>> \n You are an assistant tasked with improving Google search \
+# results. \n <</SYS>> \n\n [INST] Generate THREE Google search queries that \
+# are similar to this question. The output should be a numbered list of questions, \
+# each should be focused on how the matter is dealt with in Germany, Baden-Württemberg, \
+# and should have a question mark at the end: \n\n {question} [/INST]""",
+# )
 ##    ChatHistory: {chat_history}
 ##    Follow Up Input: {question}
 
@@ -139,7 +139,7 @@ web_research_retriever = WebResearchRetriever.from_llm(
     num_search_results=3,
     text_splitter=text_splitter,
     #return_source_documents=True, ## unexpected argument
-    prompt=prompt_search,
+    #prompt=prompt_search,
     #predefined_urls=predefined_urls,
     #url_database=url_database,
     )
@@ -195,7 +195,7 @@ qa_chain = QA_CHAIN_PROMPT | llm#
 ##### https://api.python.langchain.com/en/latest/_modules/langchain/chains/qa_with_sources/vector_db.html
 ##### https://github.com/langchain-ai/langchain/discussions/12193
 async def result_response(user_input):
-    returned_documents = web_research_retriever.invoke({"query": user_input})#['page_content']
+    returned_documents = web_research_retriever.invoke(user_input)#['page_content'] # {"query": user_input}
     #print(returned_documents)
     docs_for_summaries = []
     for document in returned_documents:
@@ -212,7 +212,7 @@ async def result_response(user_input):
     #return result["sources"]
 
 async def main():
-    user_input = "Ich will ein Au Pair Mädchen anstellen. was muss ich beachten?"
+    user_input = "Wie kann ich Kindergeld beantragen?"
     result2 = await result_response(user_input)#, run_manager=CallbackManagerForRetrieverRun())
     print(result2)
 

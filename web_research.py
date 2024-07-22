@@ -246,8 +246,8 @@ class WebResearchRetriever(BaseRetriever):
             return False
 
     def find_predefined_urls(self,url_search): ### URL from which start to search
-        #driver_path = "C:/Users/litvi/git/kn-chatbot-kernen/04_search_or_scrapping/chromedriver-win64"
-        driver_path = "https://github.com/yulialitvinova/chatbot_kernen/tree/main/04_search_or_scrapping/chromedriver-win64"
+        #driver_path = "C:/Users/litvi/git/knowledge-chatbot-kernen/04_search_or_scrapping/chromedriver-win64"
+        driver_path = "https://github.com/yulialitvinova/knowledge_chatbot_kernen/tree/main/04_search_or_scrapping/chromedriver-win64"
 
         WINDOW_SIZE = "1920,1080"
         chrome_options = Options()

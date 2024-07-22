@@ -323,8 +323,8 @@ class ServiceBWurlsSearchTool(BaseTool):
         run_manager: Optional[CallbackManagerForToolRun] = None,
         ):
         # #driver_path = "/04_search_or_scrapping/chromedriver-win64"
-        # #driver_path = "C:/Users/litvi/git/kn-chatbot-kernen/04_search_or_scrapping/chromedriver-win64"
-        # driver_path = "https://github.com/yulialitvinova/chatbot_kernen/tree/main/04_search_or_scrapping/chromedriver-win64"
+        # #driver_path = "C:/Users/litvi/git/knowledge-chatbot-kernen/04_search_or_scrapping/chromedriver-win64"
+        # driver_path = "https://github.com/yulialitvinova/knowledge_chatbot_kernen/tree/main/04_search_or_scrapping/chromedriver-win64"
 
         # url_search = "https://www.service-bw.de/zufi/lebenslagen/5000312"
         # WINDOW_SIZE = "1920,1080"

@@ -203,7 +203,8 @@ vectorstore_urls_sugg = MongoDBAtlasVectorSearch(
 # vectorestore = FAISS(embeddings_model.embed_query, index, InMemoryDocstore({}), {})
 # ###FAISS
 
-search = GoogleSearchAPIWrapper(google_cse_id=cse_id_simple_search)
+search = GoogleSearchAPIWrapper()
+simple_search = GoogleSearchAPIWrapper(google_cse_id=cse_id_simple_search)
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=embeddings_size, chunk_overlap=64)
 # text_splitter_urls_sugg = RecursiveCharacterTextSplitter(chunk_size=200, chunk_overlap=64)
 
@@ -421,7 +422,7 @@ tools = [
     ),
     Tool(
         name="simple_search_googleapiwrapper",
-        func=search.run,
+        func=simple_search.run,
         description="Tool to search Internet for general, present-day information after 2021. Helpful to provide information on today news or upcoming events.",
     ),
     # Tool(

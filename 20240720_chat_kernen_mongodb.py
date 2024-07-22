@@ -421,7 +421,7 @@ tools = [
         description="Very helpful tool if the user asks how she can apply for support or service from officials, needs application forms or asks how she or he can submit an application form, for example, Wie kann ich ... beantragen?",
     ),
     Tool(
-        name="simple_search_googleapiwrapper",
+        name="simple_search_internet",
         func=simple_search.run,
         description="Tool to search Internet for general current information, i.e., information after 2021. Helpful to provide information on news or upcoming events.",
     ),
@@ -478,7 +478,7 @@ agent.agent.llm_chain.prompt.template = """
     ```
     Question: the user's description of her situation or the user's question.
     Thought: Do I need to use a tool?
-    Action: The action to take, should be one of [search_specific_webpages, search_urls_on_service_bw, simple_search_googleapiwrapper, wikipedia].
+    Action: The action to take, should be one of [search_specific_webpages, search_urls_on_service_bw, simple_search_internet, wikipedia].
     Action Input: Input to the action, input to the tool.
     Observation: the result of the action.
     ... (this Thought/Action/Action Input/Observation can repeat up to N times before one of the tools provides a complete response)

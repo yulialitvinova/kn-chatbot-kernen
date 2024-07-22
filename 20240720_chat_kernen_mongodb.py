@@ -423,7 +423,7 @@ tools = [
     Tool(
         name="simple_search_googleapiwrapper",
         func=simple_search.run,
-        description="Tool to search Internet for general information after 2021. Helpful to provide information on today news or upcoming events.",
+        description="Tool to search Internet for general current information, i.e., information after 2021. Helpful to provide information on news or upcoming events.",
     ),
     # Tool(
     #     name="simple_search_serpapi",

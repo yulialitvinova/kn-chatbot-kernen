@@ -200,7 +200,7 @@ async def result_response(user_input):
     docs_for_summaries = []
     for document in returned_documents:
         docs_for_summaries.append(document.page_content)
-        print(f"*The next document*: {document.page_content}")
+        #print(f"*The next document*: {document.page_content}")
     
     sources_for_user = []
     for document in returned_documents:
@@ -212,7 +212,7 @@ async def result_response(user_input):
     #return result["sources"]
 
 async def main():
-    user_input = "Wie kann ich Kindergeld beantragen?"
+    user_input = "Welche Schularten gibt es?"
     result2 = await result_response(user_input)#, run_manager=CallbackManagerForRetrieverRun())
     print(result2)
 

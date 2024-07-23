@@ -508,7 +508,7 @@ agent.agent.llm_chain.prompt.template = """
     If the final response comes from the tool search_specific_webpages, use the tool output as your final response.
     
     If you do not have the answer after N attempts, reply with 'Es tut mir Leid, ich habe nicht genügend Informationen. Bitte spezifizieren Sie Ihre Anfrage oder besuchen Sie bitte: https://www.service-bw.de/zufi/lebenslagen .'
-    Always include links to source pages (SOURCES) into your response. DO NOT generate links yoursef. Include only links extracted using a tool.
+    Always include links to source pages (SOURCES) into your response. DO NOT generate links yoursef. Include all links provided by a tool.
     
     In your response, always use 'Sie' to address the user, keine 'Du'.
     The answer must be in the same language as the user's question, or input: if the user asks in German, reply in German.

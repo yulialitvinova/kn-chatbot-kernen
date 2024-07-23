@@ -418,7 +418,7 @@ tools = [
     Tool(
         name="search_urls_on_service_bw",
         func=service_bw_search_tool.run,
-        description="Very helpful tool if the user asks how she can apply for support or service from officials, needs application forms or asks how she or he can submit an application form, for example, Wie kann ich ... beantragen?",
+        description="Very helpful tool if the user asks how she can apply for support or service from officials, needs application forms or asks how she or he can submit an application form, for example, Wie kann ich ... beantragen? Also helpful when the uer claims the link is not correct, redirects to an error page or similar, or that the link is not relevant.",
     ),
     Tool(
         name="simple_search_internet",
@@ -495,7 +495,7 @@ agent.agent.llm_chain.prompt.template = """
     If the user claims in the query (input) that the provided links are not correct, do not work, redirect to not existing pages, or error pages, or show Page was not found,
     that the links are not helpful or do not provide the information the user needs, are not relevant, etc.
     try to use the tool search_urls_on_service_bw 
-    You must then consider the conversation history, especially the last but one user query, and then use the tool.
+    FOr this, You must then consider the conversation history, especially the last but one user query, and then use the tool.
     Consider the example:
         Input from the user: Wie kann ich ABC beantragen?
         Your previous response: <some link>.

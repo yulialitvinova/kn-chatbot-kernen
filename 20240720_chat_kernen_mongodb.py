@@ -548,8 +548,7 @@ logging.getLogger("web_research").setLevel(logging.INFO)
 
 if prompt := st.chat_input(placeholder="Ich bin arbeitslos. An wen muss ich mich wenden?"):
     st.chat_message("user").write(prompt)
-    chat_history_mongodb.add_user_message(st.chat_message("user")) ### chat_history_mongodb
-    #chat_history_mongodb.add_message(prompt) ### chat_history_mongodb
+    chat_history_mongodb.add_user_message(prompt) ### chat_history_mongodb
     
     with st.chat_message("assistant"):
         st_cb = StreamlitCallbackHandler(st.container(), expand_new_thoughts=False)

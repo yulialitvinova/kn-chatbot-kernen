@@ -27,6 +27,7 @@ from langchain_core.pydantic_v1 import BaseModel, Field
 
 from langchain_core.runnables import RunnableConfig
 from langchain_core.runnables.history import RunnableWithMessageHistory
+from langchain_mongodb.chat_message_histories import MongoDBChatMessageHistory
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -51,7 +52,7 @@ from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 from urllib.parse import quote_plus
 from langchain_mongodb import MongoDBAtlasVectorSearch
-from langchain_mongodb.chat_message_histories import MongoDBChatMessageHistory
+# from langchain_mongodb.chat_message_histories import MongoDBChatMessageHistory
 ############from vectorstores import MongoDBAtlasVectorSearch
 
 #from langchain_community.utilities import GoogleSearchAPIWrapper
@@ -91,7 +92,6 @@ from webdriver_manager.chrome import ChromeDriverManager
 from bs4 import BeautifulSoup
 from langchain.docstore.document import Document
 import time
-from datetime import date, datetime
 from urllib.parse import urlparse
 
 from selenium.webdriver.support.wait import WebDriverWait
@@ -203,9 +203,8 @@ vectorstore_urls_sugg = MongoDBAtlasVectorSearch(
 
 # database_history = client["99_kernen"]
 # collection_chat_history = database_history["99_kernen_chat_history"]
-session_id_today = str(datetime.today().strftime('%Y-%m-%d %H'))
 chat_history_mongodb = MongoDBChatMessageHistory(
-    session_id = session_id_today, # "test",
+    session_id="test",
     connection_string=mongodb_atlas_cluster_uri,
     database_name="99_kernen", #database,
     collection_name="99_kernen_chat_history", #collection_chat_history,
@@ -321,6 +320,22 @@ class WebResearchTool(BaseTool):
         for document in returned_documents:
             sources_for_user.append(document.metadata["source"])
 
+        # qa_chain_with_history = RunnableWithMessageHistory(
+        #     qa_chain,
+        #     lambda session_id: MongoDBChatMessageHistory(
+        #         session_id=session_id,
+        #         connection_string=mongodb_atlas_cluster_uri,
+        #         database_name="99_kernen", #database,
+        #         collection_name="99_kernen_chat_history", #collection_chat_history,
+        #         ),
+        #         input_messages_key="question",
+        #         history_messages_key="chat_history",
+        #         summaries = ,
+        #         sources = ,
+        # )
+        # session_id = "test"
+        # config = {"configurable": {"session_id": session_id}}
+        # result = qa_chain_with_history.invoke({"question": question, "summaries": docs_for_summaries, "sources": sources_for_user})
         result = qa_chain.invoke({"question": question, "summaries": docs_for_summaries, "sources": sources_for_user})
         return result.content #["answer"]
 
@@ -548,7 +563,6 @@ logging.getLogger("web_research").setLevel(logging.INFO)
 
 if prompt := st.chat_input(placeholder="Ich bin arbeitslos. An wen muss ich mich wenden?"):
     st.chat_message("user").write(prompt)
-    chat_history_mongodb.add_user_message(prompt) ### chat_history_mongodb
     
     with st.chat_message("assistant"):
         st_cb = StreamlitCallbackHandler(st.container(), expand_new_thoughts=False)
@@ -556,7 +570,6 @@ if prompt := st.chat_input(placeholder="Ich bin arbeitslos. An wen muss ich mich
         cfg["callbacks"] = [st_cb]
         response = agent(prompt)
         st.write(response["output"])
-        chat_history_mongodb.add_ai_message(response["output"]) ### chat_history_mongodb
 
 # Ich bin arbeitslos, 45 Jahre alt, habe 3 Kinder (9 Monate alt, 3 und 12 Jahre alt), wohne getrennt von meinem Mann.
 

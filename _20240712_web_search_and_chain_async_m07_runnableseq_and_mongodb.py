@@ -180,6 +180,18 @@ QA_CHAIN_PROMPT = PromptTemplate(
 
 qa_chain = QA_CHAIN_PROMPT | llm#
 
+from datetime import date, datetime
+#today = str(date.today())
+session_id_today = str(datetime.today().strftime('%Y-%m-%d %H'))
+
+from langchain_mongodb.chat_message_histories import MongoDBChatMessageHistory
+chat_history_mongodb = MongoDBChatMessageHistory(
+    session_id="test", # session_id_today
+    connection_string=mongodb_atlas_cluster_uri,
+    database_name="99_kernen", #database,
+    collection_name="99_kernen_chat_history", #collection_chat_history,
+)
+
 # user_input = "Was sind die Voraussetzungen für Landesfamilienpass?"
 # result = qa_chain.invoke({"question": user_input})
 # print(result['answer'])
@@ -215,6 +227,8 @@ async def main():
     user_input = "Welche Schularten gibt es?"
     result2 = await result_response(user_input)#, run_manager=CallbackManagerForRetrieverRun())
     print(result2)
+    chat_history_mongodb.add_user_message(user_input)
+    chat_history_mongodb.add_ai_message(result2)
 
 ##### https://stackoverflow.com/questions/45600579/asyncio-event-loop-is-closed-when-getting-loop
 if __name__ == "__main__":

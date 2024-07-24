@@ -548,7 +548,8 @@ logging.getLogger("web_research").setLevel(logging.INFO)
 
 if prompt := st.chat_input(placeholder="Ich bin arbeitslos. An wen muss ich mich wenden?"):
     st.chat_message("user").write(prompt)
-    chat_history_mongodb.add_user_message(prompt) ### chat_history_mongodb
+    #chat_history_mongodb.add_user_message(prompt) ### chat_history_mongodb
+    chat_history_mongodb.add_message(prompt) ### chat_history_mongodb
     
     with st.chat_message("assistant"):
         st_cb = StreamlitCallbackHandler(st.container(), expand_new_thoughts=False)
@@ -556,7 +557,8 @@ if prompt := st.chat_input(placeholder="Ich bin arbeitslos. An wen muss ich mich
         cfg["callbacks"] = [st_cb]
         response = agent(prompt)
         st.write(response["output"])
-        chat_history_mongodb.add_ai_message(response["output"]) ### chat_history_mongodb
+        #chat_history_mongodb.add_ai_message(response["output"]) ### chat_history_mongodb
+        chat_history_mongodb.add_message(response["output"]) ### chat_history_mongodb
 
 # Ich bin arbeitslos, 45 Jahre alt, habe 3 Kinder (9 Monate alt, 3 und 12 Jahre alt), wohne getrennt von meinem Mann.
 
